@@ -2,7 +2,9 @@ import os
 import time
 import logging
 import argparse
+import sys
 from datetime import datetime
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -10,6 +12,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 from torch.optim.lr_scheduler import CosineAnnealingLR
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 # Project-specific imports
 from networks.egeunet_network import EGEUNet
