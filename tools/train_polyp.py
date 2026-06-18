@@ -18,6 +18,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 # Project-specific imports
+from networks.cmunext_network import cmunext, cmunext_l, cmunext_s
 from networks.egeunet_network import EGEUNet
 from networks.mkunet_network import MK_UNet
 from utils.dataloader_polyp import get_loader
@@ -173,7 +174,10 @@ if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
     parser.add_argument('--network', type=str, default='MK_UNet',
-                        choices=['MK_UNet_T', 'MK_UNet_S', 'MK_UNet', 'MK_UNet_M', 'MK_UNet_L', 'EGEUNet'])
+                        choices=[
+                            'MK_UNet_T', 'MK_UNet_S', 'MK_UNet', 'MK_UNet_M', 'MK_UNet_L',
+                            'EGEUNet', 'CMUNeXt', 'CMUNeXt_S', 'CMUNeXt_L'
+                        ])
     parser.add_argument('--epoch', type=int, default=200)
     parser.add_argument('--lr', type=float, default=0.0005) # base learning rate is 0.0005 for CosineAnnealingLR and 0.0001 for no scheduler
     parser.add_argument('--batchsize', type=int, default=8)
@@ -197,6 +201,9 @@ if __name__ == '__main__':
         'MK_UNet_M': [32, 64, 128, 192, 320],
         'MK_UNet_L': [64, 128, 256, 384, 512],
         'EGEUNet': None,
+        'CMUNeXt': None,
+        'CMUNeXt_S': None,
+        'CMUNeXt_L': None,
     }
 
     # Handling Spelling Mistakes or Invalid Choices
@@ -230,6 +237,12 @@ if __name__ == '__main__':
         channels = NET_CONFIGS[chosen_net]
         if chosen_net == 'EGEUNet':
             model = EGEUNet(num_classes=1, in_channels=3)
+        elif chosen_net == 'CMUNeXt':
+            model = cmunext(num_classes=1, in_channels=3)
+        elif chosen_net == 'CMUNeXt_S':
+            model = cmunext_s(num_classes=1, in_channels=3)
+        elif chosen_net == 'CMUNeXt_L':
+            model = cmunext_l(num_classes=1, in_channels=3)
         else:
             model = MK_UNet(num_classes=1, in_channels=3, channels=channels)
 

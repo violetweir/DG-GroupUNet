@@ -15,6 +15,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 # Project-specific imports
+from networks.cmunext_network import cmunext, cmunext_l, cmunext_s
 from networks.egeunet_network import EGEUNet
 from networks.mkunet_network import MK_UNet
 from utils.dataloader_polyp import get_loader
@@ -160,11 +161,20 @@ if __name__ == '__main__':
         'MK_UNet_M': [32, 64, 128, 192, 320],
         'MK_UNet_L': [64, 128, 256, 384, 512],
         'EGEUNet': None,
+        'CMUNeXt': None,
+        'CMUNeXt_S': None,
+        'CMUNeXt_L': None,
     }
     
     channels = NET_CONFIGS.get(opt.network, NET_CONFIGS['MK_UNet'])
     if opt.network == 'EGEUNet':
         model = EGEUNet(num_classes=1, in_channels=3).cuda()
+    elif opt.network == 'CMUNeXt':
+        model = cmunext(num_classes=1, in_channels=3).cuda()
+    elif opt.network == 'CMUNeXt_S':
+        model = cmunext_s(num_classes=1, in_channels=3).cuda()
+    elif opt.network == 'CMUNeXt_L':
+        model = cmunext_l(num_classes=1, in_channels=3).cuda()
     else:
         model = MK_UNet(num_classes=1, in_channels=3, channels=channels).cuda()
     model.load_state_dict(torch.load(model_path), strict=False)
