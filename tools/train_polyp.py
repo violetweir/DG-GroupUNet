@@ -20,7 +20,9 @@ if str(PROJECT_ROOT) not in sys.path:
 # Project-specific imports
 from networks.cmunext_network import cmunext, cmunext_l, cmunext_s
 from networks.egeunet_network import EGEUNet
+from networks.medical_transformer_network import MedicalAxialUNet, MedicalGatedAxialUNet, MedicalTransformer
 from networks.mkunet_network import MK_UNet
+from networks.unext_network import UNext, UNext_S
 from utils.dataloader_polyp import get_loader
 from utils.utils import clip_gradient, adjust_lr, AvgMeter, cal_params_flops
 
@@ -117,7 +119,7 @@ def train(train_loader, model, optimizer, epoch, opt, model_name):
     
     epoch_start = time.time()
     loss_record = AvgMeter()
-    size_rates = [0.75, 1, 1.25] 
+    size_rates = [1] if getattr(opt, "disable_multiscale", False) else [0.75, 1, 1.25]
     total_step = len(train_loader)
 
     for i, (images, gts) in enumerate(train_loader, start=1):
@@ -176,7 +178,8 @@ if __name__ == '__main__':
     parser.add_argument('--network', type=str, default='MK_UNet',
                         choices=[
                             'MK_UNet_T', 'MK_UNet_S', 'MK_UNet', 'MK_UNet_M', 'MK_UNet_L',
-                            'EGEUNet', 'CMUNeXt', 'CMUNeXt_S', 'CMUNeXt_L'
+                            'EGEUNet', 'CMUNeXt', 'CMUNeXt_S', 'CMUNeXt_L', 'UNext', 'UNext_S',
+                            'MedicalAxialUNet', 'MedicalGatedAxialUNet', 'MedicalTransformer'
                         ])
     parser.add_argument('--epoch', type=int, default=200)
     parser.add_argument('--lr', type=float, default=0.0005) # base learning rate is 0.0005 for CosineAnnealingLR and 0.0001 for no scheduler
@@ -204,6 +207,11 @@ if __name__ == '__main__':
         'CMUNeXt': None,
         'CMUNeXt_S': None,
         'CMUNeXt_L': None,
+        'UNext': None,
+        'UNext_S': None,
+        'MedicalAxialUNet': None,
+        'MedicalGatedAxialUNet': None,
+        'MedicalTransformer': None,
     }
 
     # Handling Spelling Mistakes or Invalid Choices
@@ -243,6 +251,19 @@ if __name__ == '__main__':
             model = cmunext_s(num_classes=1, in_channels=3)
         elif chosen_net == 'CMUNeXt_L':
             model = cmunext_l(num_classes=1, in_channels=3)
+        elif chosen_net == 'UNext':
+            model = UNext(num_classes=1, in_channels=3, img_size=opt.img_size)
+        elif chosen_net == 'UNext_S':
+            model = UNext_S(num_classes=1, in_channels=3, img_size=opt.img_size)
+        elif chosen_net == 'MedicalAxialUNet':
+            model = MedicalAxialUNet(num_classes=1, in_channels=3, img_size=opt.img_size)
+            opt.disable_multiscale = True
+        elif chosen_net == 'MedicalGatedAxialUNet':
+            model = MedicalGatedAxialUNet(num_classes=1, in_channels=3, img_size=opt.img_size)
+            opt.disable_multiscale = True
+        elif chosen_net == 'MedicalTransformer':
+            model = MedicalTransformer(num_classes=1, in_channels=3, img_size=opt.img_size)
+            opt.disable_multiscale = True
         else:
             model = MK_UNet(num_classes=1, in_channels=3, channels=channels)
 

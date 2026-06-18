@@ -17,7 +17,9 @@ if str(PROJECT_ROOT) not in sys.path:
 # Project-specific imports
 from networks.cmunext_network import cmunext, cmunext_l, cmunext_s
 from networks.egeunet_network import EGEUNet
+from networks.medical_transformer_network import MedicalAxialUNet, MedicalGatedAxialUNet, MedicalTransformer
 from networks.mkunet_network import MK_UNet
+from networks.unext_network import UNext, UNext_S
 from utils.dataloader_polyp import get_loader
 from medpy.metric.binary import hd95
 
@@ -164,6 +166,11 @@ if __name__ == '__main__':
         'CMUNeXt': None,
         'CMUNeXt_S': None,
         'CMUNeXt_L': None,
+        'UNext': None,
+        'UNext_S': None,
+        'MedicalAxialUNet': None,
+        'MedicalGatedAxialUNet': None,
+        'MedicalTransformer': None,
     }
     
     channels = NET_CONFIGS.get(opt.network, NET_CONFIGS['MK_UNet'])
@@ -175,6 +182,16 @@ if __name__ == '__main__':
         model = cmunext_s(num_classes=1, in_channels=3).cuda()
     elif opt.network == 'CMUNeXt_L':
         model = cmunext_l(num_classes=1, in_channels=3).cuda()
+    elif opt.network == 'UNext':
+        model = UNext(num_classes=1, in_channels=3, img_size=opt.img_size).cuda()
+    elif opt.network == 'UNext_S':
+        model = UNext_S(num_classes=1, in_channels=3, img_size=opt.img_size).cuda()
+    elif opt.network == 'MedicalAxialUNet':
+        model = MedicalAxialUNet(num_classes=1, in_channels=3, img_size=opt.img_size).cuda()
+    elif opt.network == 'MedicalGatedAxialUNet':
+        model = MedicalGatedAxialUNet(num_classes=1, in_channels=3, img_size=opt.img_size).cuda()
+    elif opt.network == 'MedicalTransformer':
+        model = MedicalTransformer(num_classes=1, in_channels=3, img_size=opt.img_size).cuda()
     else:
         model = MK_UNet(num_classes=1, in_channels=3, channels=channels).cuda()
     model.load_state_dict(torch.load(model_path), strict=False)
