@@ -231,11 +231,11 @@ if __name__ == '__main__':
         run_id = (f"{dataset_name}_{chosen_net}_bs{opt.batchsize}_lr{opt.lr}_"
                       f"e{opt.epoch}_aug{opt.augmentation}_run{run}_t{timestamp}")
         opt.train_save = f'./model_pth/{run_id}/'
-        
-        os.makedirs('logs', exist_ok=True)
+
         os.makedirs(opt.train_save, exist_ok=True)
-        
-        logging.basicConfig(filename=f'logs/train_log_{run_id}.log', level=logging.INFO, 
+
+        log_path = os.path.join(opt.train_save, f'train_log_{run_id}.log')
+        logging.basicConfig(filename=log_path, level=logging.INFO,
                             format='[%(asctime)s] %(message)s', force=True)
 
         if opt.network != chosen_net:
@@ -275,6 +275,8 @@ if __name__ == '__main__':
         model.to(device)
 
         print(f"Network: {chosen_net} | Channels: {channels}")
+        print(f"Run directory: {opt.train_save}")
+        print(f"Log file: {log_path}")
         cal_params_flops(model, opt.img_size, logging)
         optimizer = torch.optim.AdamW(model.parameters(), opt.lr, weight_decay=1e-4)
         scheduler = CosineAnnealingLR(optimizer, T_max=opt.epoch, eta_min=1e-6)
