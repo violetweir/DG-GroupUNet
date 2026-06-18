@@ -12,6 +12,7 @@ from torch.autograd import Variable
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
 # Project-specific imports
+from networks.egeunet_network import EGEUNet
 from networks.mkunet_network import MK_UNet
 from utils.dataloader_polyp import get_loader
 from utils.utils import clip_gradient, adjust_lr, AvgMeter, cal_params_flops
@@ -165,8 +166,8 @@ if __name__ == '__main__':
     dataset_name = 'ClinicDB' #'ColonDB'
     
     parser = argparse.ArgumentParser()
-    parser.add_argument('--network', type=str, default='MK_UNet', 
-                        choices=['MK_UNet_T', 'MK_UNet_S', 'MK_UNet', 'MK_UNet_M', 'MK_UNet_L'])    
+    parser.add_argument('--network', type=str, default='MK_UNet',
+                        choices=['MK_UNet_T', 'MK_UNet_S', 'MK_UNet', 'MK_UNet_M', 'MK_UNet_L', 'EGEUNet'])
     parser.add_argument('--epoch', type=int, default=200)
     parser.add_argument('--lr', type=float, default=0.0005) # base learning rate is 0.0005 for CosineAnnealingLR and 0.0001 for no scheduler
     parser.add_argument('--batchsize', type=int, default=8)
@@ -188,7 +189,8 @@ if __name__ == '__main__':
         'MK_UNet_S': [8, 16, 32, 48, 80],
         'MK_UNet':   [16, 32, 64, 96, 160],
         'MK_UNet_M': [32, 64, 128, 192, 320],
-        'MK_UNet_L': [64, 128, 256, 384, 512]
+        'MK_UNet_L': [64, 128, 256, 384, 512],
+        'EGEUNet': None,
     }
 
     # Handling Spelling Mistakes or Invalid Choices
@@ -220,7 +222,10 @@ if __name__ == '__main__':
 
         # Build model
         channels = NET_CONFIGS[chosen_net]
-        model = MK_UNet(num_classes=1, in_channels=3, channels=channels)
+        if chosen_net == 'EGEUNet':
+            model = EGEUNet(num_classes=1, in_channels=3)
+        else:
+            model = MK_UNet(num_classes=1, in_channels=3, channels=channels)
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         '''if torch.cuda.device_count() > 1:

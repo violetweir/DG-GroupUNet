@@ -9,7 +9,8 @@ import argparse
 from tqdm import tqdm
 
 # Project-specific imports
-from mkunet_network import MK_UNet
+from networks.egeunet_network import EGEUNet
+from networks.mkunet_network import MK_UNet
 from utils.dataloader_polyp import get_loader
 from medpy.metric.binary import hd95
 
@@ -151,11 +152,15 @@ if __name__ == '__main__':
         'MK_UNet_S': [8, 16, 32, 48, 80],
         'MK_UNet':   [16, 32, 64, 96, 160],
         'MK_UNet_M': [32, 64, 128, 192, 320],
-        'MK_UNet_L': [64, 128, 256, 384, 512]
+        'MK_UNet_L': [64, 128, 256, 384, 512],
+        'EGEUNet': None,
     }
     
     channels = NET_CONFIGS.get(opt.network, NET_CONFIGS['MK_UNet'])
-    model = MK_UNet(num_classes=1, in_channels=3, channels=channels).cuda()
+    if opt.network == 'EGEUNet':
+        model = EGEUNet(num_classes=1, in_channels=3).cuda()
+    else:
+        model = MK_UNet(num_classes=1, in_channels=3, channels=channels).cuda()
     model.load_state_dict(torch.load(model_path), strict=False)
     model.eval()
 
