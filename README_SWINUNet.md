@@ -87,10 +87,18 @@ python tools/train_swinunet_polyp.py \
   --pretrained_ckpt pretrained_ckpt/swin_tiny_patch4_window7_224.pth \
   --epoch 200 \
   --batchsize 4 \
-  --img_size 352
+  --img_size 224
 ```
 
 Swin-UNet uses fixed input size internally, so this dedicated script does not use multi-scale training.
+
+With the default `patch_size=4` and `window_size=7`, `--img_size` must be a multiple of `224`. Use:
+
+```text
+224, 448, ...
+```
+
+Do not use `352`; it produces a Swin window partition shape error because `352 / 4 = 88`, and `88` is not divisible by `7`.
 
 Training outputs are saved together:
 
@@ -112,7 +120,7 @@ python tools/test_swinunet_polyp.py --run_id <run_id>
 Optional arguments:
 
 ```bash
-python tools/test_swinunet_polyp.py --run_id <run_id> --dataset_name ClinicDB --split test --img_size 352
+python tools/test_swinunet_polyp.py --run_id <run_id> --dataset_name ClinicDB --split test --img_size 224
 ```
 
 Prediction masks and result spreadsheets are saved to:

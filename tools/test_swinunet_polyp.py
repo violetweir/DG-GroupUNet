@@ -19,6 +19,15 @@ from networks.swinunet_network import SwinUNet
 from utils.dataloader_polyp import get_loader
 
 
+def validate_img_size(img_size):
+    if img_size % 224 != 0:
+        raise ValueError(
+            "SwinUNet requires --img_size to be a multiple of 224 with the default "
+            "patch_size=4 and window_size=7. Use --img_size 224 or --img_size 448. "
+            f"Got {img_size}."
+        )
+
+
 def dice_coefficient(predicted, labels):
     if predicted.device != labels.device:
         labels = labels.to(predicted.device)
@@ -134,13 +143,14 @@ if __name__ == "__main__":
     parser.add_argument("--run_id", type=str, required=True, help="ID of the run to test")
     parser.add_argument("--dataset_name", type=str, default="ClinicDB")
     parser.add_argument("--split", type=str, default="test")
-    parser.add_argument("--img_size", type=int, default=352)
+    parser.add_argument("--img_size", type=int, default=224)
     parser.add_argument("--test_batchsize", type=int, default=1)
     parser.add_argument("--color_image", default=True)
     parser.add_argument("--test_path", type=str, default="./data/polyp/target/")
     opt = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    validate_img_size(opt.img_size)
     save_base = f"./predictions_polyp/{opt.run_id}/{opt.dataset_name}/{opt.split}"
     os.makedirs(save_base, exist_ok=True)
     os.makedirs("results_polyp", exist_ok=True)

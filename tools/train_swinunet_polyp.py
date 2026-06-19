@@ -20,6 +20,15 @@ from utils.dataloader_polyp import get_loader
 from utils.utils import AvgMeter, cal_params_flops, clip_gradient
 
 
+def validate_img_size(img_size):
+    if img_size % 224 != 0:
+        raise ValueError(
+            "SwinUNet requires --img_size to be a multiple of 224 with the default "
+            "patch_size=4 and window_size=7. Use --img_size 224 or --img_size 448. "
+            f"Got {img_size}."
+        )
+
+
 def structure_loss(pred, mask, w=1):
     weit = 1 + 5 * torch.abs(F.avg_pool2d(mask, kernel_size=31, stride=1, padding=15) - mask)
     wbce = F.binary_cross_entropy_with_logits(pred, mask, reduction="none")
@@ -155,7 +164,7 @@ if __name__ == "__main__":
     parser.add_argument("--lr", type=float, default=0.0005)
     parser.add_argument("--batchsize", type=int, default=4)
     parser.add_argument("--test_batchsize", type=int, default=4)
-    parser.add_argument("--img_size", type=int, default=352)
+    parser.add_argument("--img_size", type=int, default=224)
     parser.add_argument("--clip", type=float, default=0.5)
     parser.add_argument("--color_image", default=True)
     parser.add_argument("--augmentation", default=True)
@@ -166,6 +175,7 @@ if __name__ == "__main__":
 
     if not os.path.isfile(opt.pretrained_ckpt):
         raise FileNotFoundError(f"--pretrained_ckpt does not exist: {opt.pretrained_ckpt}")
+    validate_img_size(opt.img_size)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model_name = "SwinUNet"

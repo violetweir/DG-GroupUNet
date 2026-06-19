@@ -22,6 +22,7 @@ from networks.cmunext_network import cmunext, cmunext_l, cmunext_s
 from networks.egeunet_network import EGEUNet
 from networks.medical_transformer_network import MedicalAxialUNet, MedicalGatedAxialUNet, MedicalTransformer
 from networks.mkunet_network import MK_UNet
+from networks.rollingunet_network import Rolling_Unet_L, Rolling_Unet_M, Rolling_Unet_S
 from networks.unext_network import UNext, UNext_S
 from utils.dataloader_polyp import get_loader
 from utils.utils import clip_gradient, adjust_lr, AvgMeter, cal_params_flops
@@ -179,7 +180,8 @@ if __name__ == '__main__':
                         choices=[
                             'MK_UNet_T', 'MK_UNet_S', 'MK_UNet', 'MK_UNet_M', 'MK_UNet_L',
                             'EGEUNet', 'CMUNeXt', 'CMUNeXt_S', 'CMUNeXt_L', 'UNext', 'UNext_S',
-                            'MedicalAxialUNet', 'MedicalGatedAxialUNet', 'MedicalTransformer'
+                            'MedicalAxialUNet', 'MedicalGatedAxialUNet', 'MedicalTransformer',
+                            'Rolling_Unet_S', 'Rolling_Unet_M', 'Rolling_Unet_L'
                         ])
     parser.add_argument('--epoch', type=int, default=200)
     parser.add_argument('--lr', type=float, default=0.0005) # base learning rate is 0.0005 for CosineAnnealingLR and 0.0001 for no scheduler
@@ -212,6 +214,9 @@ if __name__ == '__main__':
         'MedicalAxialUNet': None,
         'MedicalGatedAxialUNet': None,
         'MedicalTransformer': None,
+        'Rolling_Unet_S': None,
+        'Rolling_Unet_M': None,
+        'Rolling_Unet_L': None,
     }
 
     # Handling Spelling Mistakes or Invalid Choices
@@ -264,6 +269,12 @@ if __name__ == '__main__':
         elif chosen_net == 'MedicalTransformer':
             model = MedicalTransformer(num_classes=1, in_channels=3, img_size=opt.img_size)
             opt.disable_multiscale = True
+        elif chosen_net == 'Rolling_Unet_S':
+            model = Rolling_Unet_S(num_classes=1, input_channels=3, img_size=opt.img_size)
+        elif chosen_net == 'Rolling_Unet_M':
+            model = Rolling_Unet_M(num_classes=1, input_channels=3, img_size=opt.img_size)
+        elif chosen_net == 'Rolling_Unet_L':
+            model = Rolling_Unet_L(num_classes=1, input_channels=3, img_size=opt.img_size)
         else:
             model = MK_UNet(num_classes=1, in_channels=3, channels=channels)
 
